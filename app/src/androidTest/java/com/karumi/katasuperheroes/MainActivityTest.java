@@ -20,22 +20,29 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
+
 import com.karumi.katasuperheroes.di.MainComponent;
 import com.karumi.katasuperheroes.di.MainModule;
 import com.karumi.katasuperheroes.model.SuperHero;
 import com.karumi.katasuperheroes.model.SuperHeroesRepository;
 import com.karumi.katasuperheroes.ui.view.MainActivity;
-import it.cosenonjaviste.daggermock.DaggerMockRule;
-import java.util.Collections;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import it.cosenonjaviste.daggermock.DaggerMockRule;
+
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.Mockito.when;
 
 @RunWith(AndroidJUnit4.class) @LargeTest public class MainActivityTest {
@@ -63,6 +70,27 @@ import static org.mockito.Mockito.when;
     startActivity();
 
     onView(withText("¯\\_(ツ)_/¯")).check(matches(isDisplayed()));
+  }
+
+  @Test
+  public void doesNotShowEmptyCaseIfThereAreSuperHeroes() throws Exception {
+    givenThereAreSomeSuperHeroes(10, false);
+
+    startActivity();
+
+    onView(withText("¯\\_(ツ)_/¯")).check(matches(not(isDisplayed())));
+  }
+
+  private void givenThereAreSomeSuperHeroes(int numberOfSuperHeroes, boolean avengers) {
+    List<SuperHero> superHeores = new ArrayList<>(numberOfSuperHeroes);
+    for (int i = 0; i < numberOfSuperHeroes; i++) {
+      String name = "Super Hero " + i;
+      String photo = "anyPhoto";
+      boolean isAvenger = avengers;
+      String description = "This is the Super Hero " + i;
+      superHeores.add(new SuperHero(name, photo, isAvenger, description));
+    }
+    when(repository.getAll()).thenReturn(superHeores);
   }
 
   private void givenThereAreNoSuperHeroes() {
