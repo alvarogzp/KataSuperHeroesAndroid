@@ -31,6 +31,7 @@ import com.karumi.katasuperheroes.model.SuperHero;
 import com.karumi.katasuperheroes.model.SuperHeroesRepository;
 import com.karumi.katasuperheroes.recyclerview.RecyclerViewInteraction;
 import com.karumi.katasuperheroes.ui.view.MainActivity;
+import com.karumi.katasuperheroes.ui.view.SuperHeroDetailActivity;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +45,12 @@ import java.util.List;
 import it.cosenonjaviste.daggermock.DaggerMockRule;
 
 import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.intent.Intents.intended;
+import static android.support.test.espresso.intent.matcher.ComponentNameMatchers.hasClassName;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
+import static android.support.test.espresso.intent.matcher.IntentMatchers.hasExtra;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withEffectiveVisibility;
@@ -129,17 +135,29 @@ import static org.mockito.Mockito.when;
                         withEffectiveVisibility(ViewMatchers.Visibility.VISIBLE)))).check(view, e);
               }
             });
+  }
 
+  @Test
+  public void showsDetailViewWhenASuperHeroIsClicked() throws Exception {
+    SuperHero superHero = givenThereAreSomeSuperHeroes(1, false).get(0);
+
+    startActivity();
+
+    onView(withId(R.id.recycler_view)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+    intended(hasComponent(hasClassName(SuperHeroDetailActivity.class.getCanonicalName())));
+    intended(hasExtra(SuperHeroDetailActivity.SUPER_HERO_NAME_KEY, superHero.getName()));
   }
 
   private List<SuperHero> givenThereAreSomeSuperHeroes(int numberOfSuperHeroes, boolean avengers) {
     List<SuperHero> superHeores = new ArrayList<>(numberOfSuperHeroes);
     for (int i = 0; i < numberOfSuperHeroes; i++) {
       String name = "Super Hero - " + i;
-      String photo = "anyPhoto";
+      String photo = "https://i.annihil.us/u/prod/marvel/i/mg/c/60/55b6a28ef24fa.jpg";
       boolean isAvenger = avengers;
       String description = "This is the Super Hero " + i;
-      superHeores.add(new SuperHero(name, photo, isAvenger, description));
+      SuperHero superHero = new SuperHero(name, photo, isAvenger, description);
+      superHeores.add(superHero);
+      when(repository.getByName(name)).thenReturn(superHero);
     }
     when(repository.getAll()).thenReturn(superHeores);
     return superHeores;
