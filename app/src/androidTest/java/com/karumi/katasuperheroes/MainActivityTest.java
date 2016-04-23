@@ -41,7 +41,9 @@ import it.cosenonjaviste.daggermock.DaggerMockRule;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static com.karumi.katasuperheroes.matchers.RecyclerViewItemsCountMatcher.recyclerViewHasItemCount;
 import static org.hamcrest.CoreMatchers.not;
 import static org.mockito.Mockito.when;
 
@@ -79,6 +81,16 @@ import static org.mockito.Mockito.when;
     startActivity();
 
     onView(withText("¯\\_(ツ)_/¯")).check(matches(not(isDisplayed())));
+  }
+
+  @Test
+  public void testShowsTheNumberOfSuperHeroes() throws Exception {
+    int numberOfSuperHeroes = 10;
+    givenThereAreSomeSuperHeroes(numberOfSuperHeroes, true);
+
+    startActivity();
+
+    onView(withId(R.id.recycler_view)).check(matches(recyclerViewHasItemCount(numberOfSuperHeroes)));
   }
 
   private void givenThereAreSomeSuperHeroes(int numberOfSuperHeroes, boolean avengers) {
